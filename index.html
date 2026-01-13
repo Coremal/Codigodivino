@@ -28,7 +28,7 @@
         }
 
         /* ----------------------------------------------------
-           ESTILOS DEL REPRODUCTOR (ANTIPIRATA / ANTICONTROL)
+           ESTILOS DEL REPRODUCTOR
            ---------------------------------------------------- */
         .video-wrapper {
             position: relative;
@@ -40,46 +40,95 @@
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
 
-        /* El iframe de YouTube: Desactivamos la interacción directa */
         .video-wrapper iframe {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            /* ESTO ES CRUCIAL: Impide que toquen la barra de YouTube */
-            pointer-events: none; 
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; /* Crucial: Evita controles de YT */
         }
 
-        /* Capa escudo transparente: Se activa tras darle play */
+        /* Escudo invisible post-play */
         .click-shield {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: 10;
             background: transparent;
-            display: none; /* Se activa vía JS */
+            display: none;
         }
 
-        /* Botón de inicio (Overlay) */
+        /* Overlay Inicial y de Resume */
         .play-overlay {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.85); /* Un poco más oscuro para leer textos */
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 20;
-            cursor: pointer;
             transition: opacity 0.3s;
         }
         
+        /* Contenedor botones de resume (oculto por defecto) */
+        #resumeOptions {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* Botón Play gigante (por defecto) */
+        #defaultPlayBtn {
+            cursor: pointer;
+            text-align: center;
+        }
+
         .play-icon {
             font-size: 70px;
             color: white;
             opacity: 0.9;
             animation: pulse 2s infinite;
             margin-bottom: 15px;
+        }
+
+        .resume-btn {
+            background-color: #ef4444; /* Rojo */
+            color: white;
+            font-weight: bold;
+            padding: 12px 24px;
+            border-radius: 50px;
+            margin: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            font-size: 16px;
+            width: 280px;
+            justify-content: center;
+            border: 2px solid #ef4444;
+        }
+        
+        .resume-btn:hover {
+            background-color: #dc2626;
+            transform: scale(1.05);
+        }
+
+        .restart-btn {
+            background-color: transparent;
+            color: #d1d5db;
+            border: 2px solid #6b7280;
+            font-weight: bold;
+            padding: 10px 24px;
+            border-radius: 50px;
+            margin: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 280px;
+            text-align: center;
+            font-size: 14px;
+        }
+        .restart-btn:hover {
+            border-color: white;
+            color: white;
         }
 
         @keyframes pulse {
@@ -89,7 +138,7 @@
         }
 
         /* ----------------------------------------------------
-           BARRA DE PROGRESO FALSA
+           BARRA DE PROGRESO
            ---------------------------------------------------- */
         .progress-container {
             width: 100%;
@@ -111,10 +160,10 @@
         }
 
         /* ----------------------------------------------------
-           SECCIÓN DE OFERTA
+           OFERTA
            ---------------------------------------------------- */
         #offer-section {
-            display: none; /* Se muestra con JS */
+            display: none; 
             animation: fadeIn 1.5s ease-in-out;
         }
 
@@ -123,27 +172,17 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .price-strike {
-            text-decoration: line-through;
-            color: #ef4444; /* Rojo */
-            font-weight: bold;
-        }
+        .price-strike { text-decoration: line-through; color: #ef4444; font-weight: bold; }
         
-        /* Botón CTA animado */
         .cta-button {
             background: linear-gradient(to bottom, #facc15 0%, #ca8a04 100%);
             border-bottom: 4px solid #a16207;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
             transition: all 0.1s;
         }
-        .cta-button:active {
-            transform: translateY(3px);
-            border-bottom: 1px solid #a16207;
-        }
+        .cta-button:active { transform: translateY(3px); border-bottom: 1px solid #a16207; }
         
-        .arrows-down {
-            animation: bounce 2s infinite;
-        }
+        .arrows-down { animation: bounce 2s infinite; }
         @keyframes bounce {
             0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
             40% {transform: translateY(-10px);}
@@ -153,7 +192,6 @@
 </head>
 <body class="min-h-screen flex flex-col items-center justify-start pb-10">
 
-    <!-- HEADLINE -->
     <header class="w-full max-w-4xl px-4 pt-6 pb-2 text-center">
         <div class="bg-red-600 text-white text-[10px] md:text-xs font-bold uppercase py-1 px-3 inline-block rounded mb-3 tracking-widest shadow-sm">
             Atención: Ver hasta el final
@@ -166,72 +204,69 @@
         </p>
     </header>
 
-    <!-- ÁREA DEL VIDEO -->
     <main class="w-full max-w-3xl px-4 my-4 flex flex-col items-center">
         
         <div class="w-full relative shadow-2xl rounded-lg">
             <div class="video-wrapper">
-                <!-- Capa Overlay para iniciar el video -->
-                <div id="startOverlay" class="play-overlay" onclick="playYouTubeVideo()">
-                    <i class="fas fa-play-circle play-icon"></i>
-                    <p class="text-white font-bold text-lg md:text-xl uppercase tracking-wide">Haga clic para iniciar el video</p>
-                    <p class="text-gray-300 text-sm mt-3 font-medium bg-black bg-opacity-50 px-3 py-1 rounded-full">
-                        <i class="fas fa-volume-high mr-2 text-green-400"></i>Sonido Activado
-                    </p>
+                
+                <!-- CAPA OVERLAY CON LÓGICA DUAL -->
+                <div id="startOverlay" class="play-overlay">
+                    
+                    <!-- 1. OPCIÓN POR DEFECTO: Play Gigante -->
+                    <div id="defaultPlayBtn" onclick="playYouTubeVideo(0)">
+                        <i class="fas fa-play-circle play-icon"></i>
+                        <p class="text-white font-bold text-lg md:text-xl uppercase tracking-wide">Haga clic para iniciar el video</p>
+                        <p class="text-gray-300 text-sm mt-3 font-medium bg-black bg-opacity-50 px-3 py-1 rounded-full inline-block">
+                            <i class="fas fa-volume-high mr-2 text-green-400"></i>Sonido Activado
+                        </p>
+                    </div>
+
+                    <!-- 2. OPCIÓN RESUME: Dos Botones (Oculto inicialmente) -->
+                    <div id="resumeOptions">
+                        <p class="text-white font-bold text-lg mb-4 text-center">¡Hola de nuevo! <br><span class="text-gray-300 text-sm font-normal">Detectamos que ya estabas viendo el video.</span></p>
+                        
+                        <button onclick="resumeSavedVideo()" class="resume-btn">
+                            <i class="fas fa-history mr-2"></i> Continuar viendo
+                        </button>
+                        
+                        <button onclick="playYouTubeVideo(0)" class="restart-btn">
+                            <i class="fas fa-redo mr-2"></i> Ver desde el inicio
+                        </button>
+                    </div>
+
                 </div>
 
-                <!-- Escudo invisible (evita clicks una vez iniciado) -->
                 <div id="clickShield" class="click-shield"></div>
-
-                <!-- Contenedor API YouTube -->
                 <div id="player"></div>
             </div>
 
-            <!-- Barra de Progreso Falsa -->
             <div class="progress-container">
                 <div id="fakeProgressBar" class="progress-bar"></div>
             </div>
         </div>
 
-        <!-- SECCIÓN DE OFERTA (Oculta hasta el min 44) -->
         <div id="offer-section" class="w-full mt-10 text-center bg-white p-6 md:p-8 rounded-xl shadow-xl border border-gray-100 border-b-4 border-gray-300 relative overflow-hidden">
-            
-            <!-- Flechas llamativas -->
-            <div class="arrows-down text-red-600 text-3xl mb-4">
-                <i class="fas fa-angle-double-down"></i>
-            </div>
-
+            <div class="arrows-down text-red-600 text-3xl mb-4"><i class="fas fa-angle-double-down"></i></div>
             <h2 class="text-2xl md:text-3xl font-black text-gray-800 mb-2">¡Oportunidad Única Desbloqueada!</h2>
             <p class="text-gray-600 mb-8 max-w-lg mx-auto text-sm md:text-base leading-relaxed">
                 Has demostrado un compromiso real al llegar hasta aquí. Por eso, he habilitado un descuento especial para que accedas hoy mismo.
             </p>
-
-            <!-- Caja de Precios -->
             <div class="bg-yellow-50 rounded-lg p-6 max-w-sm mx-auto mb-8 border border-yellow-200 shadow-sm relative">
-                <!-- Etiqueta de descuento -->
-                <div class="absolute -top-3 -right-3 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md transform rotate-3">
-                    AHORRAS $2.00
-                </div>
-
+                <div class="absolute -top-3 -right-3 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md transform rotate-3">AHORRAS $2.00</div>
                 <div class="flex flex-col items-center justify-center gap-1">
                     <div class="text-gray-400 font-bold text-lg">Precio Regular: <span class="price-strike">$37.00</span></div>
                     <div class="text-5xl font-black text-gray-900 tracking-tighter">
                         <span class="text-2xl align-top text-gray-500 font-medium">$</span>35<span class="text-2xl align-top text-gray-500 font-medium">.00</span>
                     </div>
-                    <div class="text-green-600 font-bold text-sm bg-green-100 px-2 py-0.5 rounded mt-1">
-                        OFERTA ACTIVA HOY
-                    </div>
+                    <div class="text-green-600 font-bold text-sm bg-green-100 px-2 py-0.5 rounded mt-1">OFERTA ACTIVA HOY</div>
                 </div>
             </div>
 
-            <!-- BOTÓN DE COMPRA -->
-            <!-- ENLACE DE PAGO AGREGADO -->
             <a href="https://pay.hotmart.com/V103840516E" target="_blank" class="cta-button w-full md:w-3/4 mx-auto flex items-center justify-center gap-3 text-white font-black text-xl md:text-2xl py-5 px-6 rounded-lg shadow-lg hover:shadow-2xl uppercase tracking-wider group">
                 <span>Sí, Quiero Acceder Ahora</span>
                 <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
             </a>
 
-            <!-- Sellos de confianza -->
             <div class="mt-8 pt-6 border-t border-gray-100">
                 <div class="flex flex-wrap justify-center items-center gap-6 opacity-70 grayscale hover:grayscale-0 transition-all duration-300">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" class="h-6" alt="Visa">
@@ -244,67 +279,58 @@
                 </div>
             </div>
         </div>
-
     </main>
 
-    <!-- FOOTER -->
     <footer class="mt-auto py-6 text-center text-gray-400 text-[10px] w-full max-w-4xl border-t border-gray-200 mx-auto">
-        <div class="flex justify-center gap-4 mb-3">
-            <a href="#" class="hover:underline">Términos y Condiciones</a>
-            <a href="#" class="hover:underline">Política de Privacidad</a>
-            <a href="#" class="hover:underline">Descargo de Responsabilidad</a>
-        </div>
-        <p>&copy; 2024. Todos los derechos reservados.</p>
-        <p class="mt-2 max-w-xl mx-auto px-6 opacity-60">
-            Este sitio no es parte del sitio web de Facebook o Facebook Inc. Además, este sitio no está respaldado por Facebook de ninguna manera. FACEBOOK es una marca registrada de FACEBOOK, Inc.
-        </p>
+        <p>&copy; 2024. Todos los derechos reservados. Este sitio no es parte del sitio web de Facebook o Facebook Inc.</p>
     </footer>
 
-    <!-- JAVASCRIPT LOGIC -->
     <script>
         // ==========================================
-        //  CONFIGURACIÓN DEL VIDEO Y TIEMPOS
+        //  CONFIGURACIÓN
         // ==========================================
         const YOUTUBE_VIDEO_ID = "VXaaYwwfVE0"; 
-        
-        // MODO PRUEBA: 
-        // true = Botón sale en 10 segs (para que tú pruebes).
-        // false = Botón sale en 44 minutos (para el público).
         const DEBUG_MODE = false; 
-
-        // 44 minutos * 60 segundos = 2640 segundos
-        const TARGET_TIME_SECONDS = DEBUG_MODE ? 10 : 2640; 
+        const TARGET_TIME_SECONDS = DEBUG_MODE ? 10 : 2640; // 44 mins
+        const STORAGE_KEY = 'vsl_video_progress_v1';
         // ==========================================
 
         var player;
         var interval;
         var offerRevealed = false;
+        var savedTime = 0;
         
         const progressBar = document.getElementById('fakeProgressBar');
         const overlay = document.getElementById('startOverlay');
+        const defaultBtn = document.getElementById('defaultPlayBtn');
+        const resumeOpts = document.getElementById('resumeOptions');
         const shield = document.getElementById('clickShield');
         const offerSection = document.getElementById('offer-section');
 
-        // 1. Cargar la API de YouTube Iframe asíncronamente
+        // Cargar API YouTube
         var tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
         var firstScriptTag = document.getElementsByTagName('script')[0];
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-        // 2. Inicializar el reproductor cuando la API esté lista
         function onYouTubeIframeAPIReady() {
+            // Verificar si hay progreso guardado
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                savedTime = parseFloat(stored);
+                // Solo mostramos opción de reanudar si avanzó más de 10 segs
+                if (savedTime > 10) {
+                    showResumeUI();
+                }
+            }
+
             player = new YT.Player('player', {
                 height: '100%',
                 width: '100%',
                 videoId: YOUTUBE_VIDEO_ID,
                 playerVars: {
-                    'playsinline': 1,   // Vital para iOS
-                    'controls': 0,      // Ocultar controles nativos
-                    'disablekb': 1,     // Desactivar teclado
-                    'fs': 0,            // Desactivar pantalla completa
-                    'rel': 0,           // No mostrar videos relacionados externos
-                    'modestbranding': 1, // Menos branding
-                    'iv_load_policy': 3 // Ocultar anotaciones
+                    'playsinline': 1, 'controls': 0, 'disablekb': 1,
+                    'fs': 0, 'rel': 0, 'modestbranding': 1, 'iv_load_policy': 3
                 },
                 events: {
                     'onStateChange': onPlayerStateChange,
@@ -314,88 +340,88 @@
         }
 
         function onPlayerReady(event) {
-            // El video está cargado, esperando click en el overlay
+            // Player listo.
         }
 
-        // 3. Función al hacer clic en "Haga clic para iniciar"
-        function playYouTubeVideo() {
+        function showResumeUI() {
+            defaultBtn.style.display = 'none';
+            resumeOpts.style.display = 'flex';
+        }
+
+        function resumeSavedVideo() {
+            playYouTubeVideo(savedTime);
+        }
+
+        function playYouTubeVideo(startTime) {
             if(player && player.playVideo) {
+                // Si es reinicio (startTime 0), borramos memoria
+                if (startTime === 0) {
+                    localStorage.removeItem(STORAGE_KEY);
+                }
+
+                player.seekTo(startTime);
                 player.playVideo();
-                player.unMute(); // Asegurar sonido
+                player.unMute();
                 
-                // Animación de salida del overlay
                 overlay.style.opacity = '0';
                 setTimeout(() => {
                     overlay.style.display = 'none';
-                    // Activar el "Escudo" transparente para evitar clicks posteriores (pausa)
                     shield.style.display = 'block';
                 }, 300);
                 
-                // Iniciar el reloj interno
                 startTimerLoop();
             }
         }
 
-        // 4. Controlar el estado del video (Lógica "Incontrolable")
         function onPlayerStateChange(event) {
-            // YT.PlayerState.ENDED = 0, PAUSED = 2, PLAYING = 1
-            
-            // Si el video termina
             if (event.data === YT.PlayerState.ENDED) {
                 if (!offerRevealed) revealOffer();
                 progressBar.style.width = '100%';
-                shield.style.display = 'none'; // Permitir replay si quisieran (opcional)
+                shield.style.display = 'none';
+                localStorage.removeItem(STORAGE_KEY); // Borrar progreso al terminar
                 clearInterval(interval);
             }
             
-            // Si el video se pausa (por alguna razón técnica o intento de hack), forzar play
+            // Forzar play si pausan
             if (event.data === YT.PlayerState.PAUSED && !offerRevealed) {
-                // Pequeño timeout para evitar conflicto de bucle
-                setTimeout(() => {
-                    player.playVideo();
-                }, 100);
+                setTimeout(() => { player.playVideo(); }, 100);
             }
         }
 
-        // 5. Bucle de tiempo y Barra de Progreso Falsa
         function startTimerLoop() {
-            // Limpiar intervalo anterior si existe
             if (interval) clearInterval(interval);
 
             interval = setInterval(() => {
                 if(player && player.getCurrentTime) {
                     var currentTime = player.getCurrentTime();
-                    var duration = player.getDuration() || (TARGET_TIME_SECONDS + 300); // Fallback
+                    var duration = player.getDuration() || (TARGET_TIME_SECONDS + 300);
 
-                    // LÓGICA DE APARICIÓN DEL BOTÓN
+                    // 1. Guardar progreso cada 5 segundos aprox
+                    if (currentTime > 5) {
+                        localStorage.setItem(STORAGE_KEY, currentTime);
+                    }
+
+                    // 2. Revelar Oferta
                     if (!offerRevealed && currentTime >= TARGET_TIME_SECONDS) {
                         revealOffer();
                     }
 
-                    // LÓGICA DE BARRA DE PROGRESO "TRUCADA"
-                    // Fórmula: La barra avanza rápido al principio y lento al final
-                    // Usamos Math.pow(x, 0.6) para esa curva
+                    // 3. Barra de Progreso Trucada
                     if (duration > 0) {
                         const ratio = currentTime / duration;
                         let visualPercentage = Math.pow(ratio, 0.6) * 100;
-                        
-                        // Tope visual al 98% hasta que el evento ENDED salte real
                         if (visualPercentage > 98 && (player.getPlayerState() !== YT.PlayerState.ENDED)) {
                             visualPercentage = 98 + (ratio * 0.5); 
                         }
-                        
                         progressBar.style.width = `${visualPercentage}%`;
                     }
                 }
-            }, 500); // Revisar cada medio segundo
+            }, 500); 
         }
 
-        // 6. Función para mostrar la oferta
         function revealOffer() {
             offerRevealed = true;
             offerSection.style.display = 'block';
-            
-            // Scroll suave automático en PC
             if(window.innerWidth > 768) {
                 setTimeout(() => {
                     offerSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
