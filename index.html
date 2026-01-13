@@ -11,6 +11,16 @@
     <!-- Iconos FontAwesome -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
 
+    <!-- MICROSOFT CLARITY TRACKING CODE -->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "v0t5p4ftcv");
+    </script>
+    <!-- FIN CLARITY -->
+
     <style>
         body {
             font-family: 'Roboto', sans-serif;
@@ -215,10 +225,8 @@
             </div>
 
             <!-- BOTÓN DE COMPRA -->
-            <!-- ======================================================= -->
-            <!-- IMPORTANTE: PON AQUÍ TU ENLACE DE PAGO EN 'HREF'      -->
-            <!-- ======================================================= -->
-            <a href="#" target="_blank" class="cta-button w-full md:w-3/4 mx-auto flex items-center justify-center gap-3 text-white font-black text-xl md:text-2xl py-5 px-6 rounded-lg shadow-lg hover:shadow-2xl uppercase tracking-wider group">
+            <!-- ENLACE DE PAGO AGREGADO -->
+            <a href="https://pay.hotmart.com/V103840516E" target="_blank" class="cta-button w-full md:w-3/4 mx-auto flex items-center justify-center gap-3 text-white font-black text-xl md:text-2xl py-5 px-6 rounded-lg shadow-lg hover:shadow-2xl uppercase tracking-wider group">
                 <span>Sí, Quiero Acceder Ahora</span>
                 <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
             </a>
@@ -257,10 +265,11 @@
         // ==========================================
         //  CONFIGURACIÓN DEL VIDEO Y TIEMPOS
         // ==========================================
-        const YOUTUBE_VIDEO_ID = "VXaaYwwfVE0"; // ID PROPORCIONADO POR EL USUARIO
+        const YOUTUBE_VIDEO_ID = "VXaaYwwfVE0"; 
         
-        // MODO PRUEBA: Si lo pones en 'true', el botón sale en 10 segundos.
-        // DEJAR EN 'false' PARA PRODUCCIÓN (44 MINUTOS)
+        // MODO PRUEBA: 
+        // true = Botón sale en 10 segs (para que tú pruebes).
+        // false = Botón sale en 44 minutos (para el público).
         const DEBUG_MODE = false; 
 
         // 44 minutos * 60 segundos = 2640 segundos
