@@ -4,12 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mensaje Importante - Presentación Especial</title>
+    
+    <!-- OPTIMIZACIÓN DE VELOCIDAD (LCP) -->
+    <!-- Preconectar a servidores críticos antes de cargar nada -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://www.youtube.com">
+    
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Fuentes Google -->
+    
+    <!-- Fuentes Google (Optimizado con swap para que el texto se vea inmediato) -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
-    <!-- Iconos FontAwesome -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    
+    <!-- Iconos FontAwesome (VERSIÓN CSS - MÁS RÁPIDA QUE JS) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- MICROSOFT CLARITY TRACKING CODE -->
     <script type="text/javascript">
@@ -38,6 +47,8 @@
             background: #000;
             border-radius: 8px;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            /* Mejora de LCP: placeholder negro inmediato */
+            content-visibility: auto;
         }
 
         .video-wrapper iframe {
@@ -188,9 +199,17 @@
             40% {transform: translateY(-10px);}
             60% {transform: translateY(-5px);}
         }
+        
+        /* Indicador de modo test (solo visible si activado) */
+        #test-indicator { display: none; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-start pb-10">
+
+    <!-- INDICADOR DE MODO TEST -->
+    <div id="test-indicator" class="w-full bg-red-600 text-white text-center py-2 font-bold uppercase tracking-widest animate-pulse text-xs">
+        ⚠️ MODO PRUEBA ACTIVO (Oferta en 5s) ⚠️
+    </div>
 
     <header class="w-full max-w-4xl px-4 pt-6 pb-2 text-center">
         <div class="bg-red-600 text-white text-[10px] md:text-xs font-bold uppercase py-1 px-3 inline-block rounded mb-3 tracking-widest shadow-sm">
@@ -252,13 +271,21 @@
                 Has demostrado un compromiso real al llegar hasta aquí. Por eso, he habilitado un descuento especial para que accedas hoy mismo.
             </p>
             <div class="bg-yellow-50 rounded-lg p-6 max-w-sm mx-auto mb-8 border border-yellow-200 shadow-sm relative">
-                <div class="absolute -top-3 -right-3 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md transform rotate-3">AHORRAS $2.00</div>
+                <!-- AHORRO RECALCULADO (37 - 17 = 20) -->
+                <div class="absolute -top-3 -right-3 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md transform rotate-3">AHORRAS $20.00</div>
                 <div class="flex flex-col items-center justify-center gap-1">
                     <div class="text-gray-400 font-bold text-lg">Precio Regular: <span class="price-strike">$37.00</span></div>
                     <div class="text-5xl font-black text-gray-900 tracking-tighter">
-                        <span class="text-2xl align-top text-gray-500 font-medium">$</span>35<span class="text-2xl align-top text-gray-500 font-medium">.00</span>
+                        <!-- NUEVO PRECIO -->
+                        <span class="text-2xl align-top text-gray-500 font-medium">$</span>17<span class="text-2xl align-top text-gray-500 font-medium">.00</span>
                     </div>
-                    <div class="text-green-600 font-bold text-sm bg-green-100 px-2 py-0.5 rounded mt-1">OFERTA ACTIVA HOY</div>
+                    
+                    <!-- NUEVO: PRECIO EN PESOS MEXICANOS Y COLOMBIANOS -->
+                    <div class="text-sm font-bold text-gray-500 mt-1">
+                        (≈ $340 MXN / $68.000 COP)
+                    </div>
+                    
+                    <div class="text-green-600 font-bold text-sm bg-green-100 px-2 py-0.5 rounded mt-2">OFERTA ACTIVA HOY</div>
                 </div>
             </div>
 
@@ -290,8 +317,20 @@
         //  CONFIGURACIÓN
         // ==========================================
         const YOUTUBE_VIDEO_ID = "VXaaYwwfVE0"; 
-        const DEBUG_MODE = false; 
-        const TARGET_TIME_SECONDS = DEBUG_MODE ? 10 : 2640; // 44 mins
+        
+        // 1. Detección de Parámetro URL para MODO TEST
+        // Añade ?test=1 a tu URL para probar la oferta en 5 segundos
+        const urlParams = new URLSearchParams(window.location.search);
+        const IS_TEST_MODE = urlParams.has('test');
+
+        if (IS_TEST_MODE) {
+            document.getElementById('test-indicator').style.display = 'block';
+        }
+
+        // Configuración de Tiempo (Segundos)
+        // 44 minutos = 2640 segundos
+        const TARGET_TIME_SECONDS = IS_TEST_MODE ? 5 : 2640; 
+        
         const STORAGE_KEY = 'vsl_video_progress_v1';
         // ==========================================
 
@@ -307,22 +346,33 @@
         const shield = document.getElementById('clickShield');
         const offerSection = document.getElementById('offer-section');
 
+        // Backdoor Teclado: Ctrl + Shift + Flecha Derecha
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && event.shiftKey && event.key === 'ArrowRight') {
+                if(player && player.seekTo) {
+                    player.seekTo(TARGET_TIME_SECONDS - 2); 
+                }
+            }
+        });
+
         // Cargar API YouTube
         var tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
         var firstScriptTag = document.getElementsByTagName('script')[0];
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-        function onYouTubeIframeAPIReady() {
-            // Verificar si hay progreso guardado
-            const stored = localStorage.getItem(STORAGE_KEY);
-            if (stored) {
-                savedTime = parseFloat(stored);
-                // Solo mostramos opción de reanudar si avanzó más de 10 segs
-                if (savedTime > 10) {
-                    showResumeUI();
+        // Hacemos la función global explícitamente
+        window.onYouTubeIframeAPIReady = function() {
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                // Si estamos en MODO TEST, ignoramos el resume para probar el botón rápido
+                if (stored && !IS_TEST_MODE) { 
+                    savedTime = parseFloat(stored);
+                    if (savedTime > 10) {
+                        showResumeUI();
+                    }
                 }
-            }
+            } catch(e) {}
 
             player = new YT.Player('player', {
                 height: '100%',
@@ -333,32 +383,25 @@
                     'fs': 0, 'rel': 0, 'modestbranding': 1, 'iv_load_policy': 3
                 },
                 events: {
-                    'onStateChange': onPlayerStateChange,
-                    'onReady': onPlayerReady
+                    'onStateChange': onPlayerStateChange
                 }
             });
-        }
+        };
 
-        function onPlayerReady(event) {
-            // Player listo.
-        }
-
-        function showResumeUI() {
+        window.showResumeUI = function() {
             defaultBtn.style.display = 'none';
             resumeOpts.style.display = 'flex';
-        }
+        };
 
-        function resumeSavedVideo() {
+        window.resumeSavedVideo = function() {
             playYouTubeVideo(savedTime);
-        }
+        };
 
-        function playYouTubeVideo(startTime) {
+        window.playYouTubeVideo = function(startTime) {
             if(player && player.playVideo) {
-                // Si es reinicio (startTime 0), borramos memoria
                 if (startTime === 0) {
                     localStorage.removeItem(STORAGE_KEY);
                 }
-
                 player.seekTo(startTime);
                 player.playVideo();
                 player.unMute();
@@ -371,18 +414,16 @@
                 
                 startTimerLoop();
             }
-        }
+        };
 
         function onPlayerStateChange(event) {
             if (event.data === YT.PlayerState.ENDED) {
                 if (!offerRevealed) revealOffer();
                 progressBar.style.width = '100%';
                 shield.style.display = 'none';
-                localStorage.removeItem(STORAGE_KEY); // Borrar progreso al terminar
+                localStorage.removeItem(STORAGE_KEY);
                 clearInterval(interval);
             }
-            
-            // Forzar play si pausan
             if (event.data === YT.PlayerState.PAUSED && !offerRevealed) {
                 setTimeout(() => { player.playVideo(); }, 100);
             }
@@ -396,17 +437,15 @@
                     var currentTime = player.getCurrentTime();
                     var duration = player.getDuration() || (TARGET_TIME_SECONDS + 300);
 
-                    // 1. Guardar progreso cada 5 segundos aprox
-                    if (currentTime > 5) {
+                    // Guardar cada 5s (solo si NO es test mode)
+                    if (currentTime > 5 && !IS_TEST_MODE) {
                         localStorage.setItem(STORAGE_KEY, currentTime);
                     }
 
-                    // 2. Revelar Oferta
                     if (!offerRevealed && currentTime >= TARGET_TIME_SECONDS) {
                         revealOffer();
                     }
 
-                    // 3. Barra de Progreso Trucada
                     if (duration > 0) {
                         const ratio = currentTime / duration;
                         let visualPercentage = Math.pow(ratio, 0.6) * 100;
